@@ -1,0 +1,41 @@
+.notes-title {
+    padding-top: 1em;
+}
+
+.note-list-item {
+    width: 100% !important;
+}
+
+.note-list-item button{
+    width: 100% !important;
+    padding: 0.5em 1em;
+
+    border-radius: 4px;
+    text-align: left;
+}
+
+.title-divider {
+    margin: 0px auto !important;
+    width: 90% !important;
+
+    border-radius: 50%;
+    background: linear-gradient(to right, #ff661a, #8533ff );
+}
+
+.note-content-preview {
+    white-space: nowrap;
+    word-break: break-all;
+    max-height: 1.5em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.add-button-container {
+    padding-bottom: 1em;
+    padding-right: 1em;
+    text-align: right;
+}
+
+.note-editor .note-content {
+    min-height: 6em;
+}

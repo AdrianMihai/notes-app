@@ -1,0 +1,31 @@
+body:before {
+    content: "";
+    position: absolute;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+  
+    background-image: url('https://www.10wallpaper.com/wallpaper/1366x768/1701/Apple_laptop_notebook_notes-Brand_HD_Wallpaper_1366x768.jpg');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+  
+    filter: blur(2px);
+    z-index: -2;
+}
+
+.main-container {
+    padding: 100px 0px;  
+}
+
+.form-container {
+    padding: 2em;
+    margin: 0 1em !important;
+
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.login-button-container {
+    text-align: right;
+}

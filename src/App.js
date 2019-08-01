@@ -1,26 +1,35 @@
 import React from 'react';
-import logo from './logo.svg';
+
+import { AuthProvider } from './auth/Auth';
+import { AppRouter } from './router/AppRouter';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { indigo, deepOrange } from '@material-ui/core/colors';
+import { ThemeProvider } from '@material-ui/styles';
 import './App.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const theme = createMuiTheme({
+	palette: {
+	  primary: indigo,
+	  secondary: deepOrange,
+	},
+	status: {
+	  danger: 'orange',
+	},
+});
+
+export class App extends React.Component {
+
+	componentDidMount() {
+	}
+
+	render() {
+		return (
+			<ThemeProvider theme={theme}>
+				<AuthProvider>
+					<AppRouter />
+				</AuthProvider>
+			</ThemeProvider>
+		);
+	}
 }
 
-export default App;
