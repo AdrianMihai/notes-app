@@ -13,13 +13,10 @@ import { useTheme } from '@material-ui/styles';
 const Note = (props) => {
     const theme = useTheme();
 
-    console.log(theme);
-
     return (
-        
         <ListItem className = 'note-list-item'>
             <ButtonBase
-                onClick = {(e) =>{ console.log(e); props.selectNote(props.note.id);}}
+                onClick = {(e) =>{ props.selectNote(props.note.id);}}
             >
                 <ListItemAvatar>
                     <Avatar

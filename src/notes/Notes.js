@@ -9,83 +9,20 @@ import { green } from '@material-ui/core/colors';
 import withAuth from '../auth/Auth';
 import NotesList from './NotesList';
 import NoteEditor from './NoteEditor';
+import withNotes from './NotesProvider';
 
 class NotesComp extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            notes: [],
             openEditor: null,
             selectedNoteId: null
         };
 
-        this.addNote = this.addNote.bind(this);
-        this.updateNote = this.updateNote.bind(this);
-        this.deleteNote = this.deleteNote.bind(this);
         this.getEditorOpener = this.getEditorOpener.bind(this);
         this.saveNoteChange = this.saveNoteChange.bind(this);
         this.selectNote = this.selectNote.bind(this);
-        //this.generateUniqueId = this.generateUniqueId.bind(this);
-    }
-
-    generateRandomId() {
-        return Math.floor(Math.random() * Math.floor(1000));;
-    }
-
-    generateUniqueId = () => {
-        let id = this.generateRandomId();
-
-        while (this.state.notes.filter(n => n.id === id).length > 0) {
-            id = this.generateRandomId();
-        }
-
-        return id;
-    }
-
-    createNote(id, title, content) {
-        return {id, title, content};
-    }
-
-    findNoteIndex = (id) => {
-        return this.state.notes.findIndex(n => n.id === id)
-    }
-
-    addNote(title, content) {
-        
-        let id = this.generateUniqueId();
-        let notes = this.state.notes;
-        notes.push(this.createNote(id, title, content));
-
-        this.setState({notes});
-    }
-
-    updateNote(id, title, content) {
-        let index = this.findNoteIndex(id);
-
-        if (index > -1) {
-            let notes = this.state.notes;
-
-            let note = notes[index];
-            note.title = title;
-            note.content = content;
-
-            notes[index] = note;
-            
-            this.setState({notes});
-        }
-    }
-
-    deleteNote(id) {
-        console.log(this.state);
-        let index = this.findNoteIndex(id);
-
-        if (index > -1) {
-            let notes = this.state.notes;
-            notes.splice(index, 1);
-
-            this.setState({notes});
-        }
     }
 
     selectNote(id) {
@@ -93,28 +30,20 @@ class NotesComp extends React.Component {
             selectedNoteId: id
         });
 
-        let note = this.state.notes[this.findNoteIndex(id)];
-        this.state.openEditor(true, note.title, note.content);
+        let note = this.props.notes.findNote(id);
+        this.state.openEditor(false, note.title, note.content);
     }
 
     saveNoteChange(title, content) {
         if (this.state.selectedNoteId === null) {
-            this.addNote(title, content);
+            this.props.notes.addNote(title, content);
         }
         else {
-            this.updateNote(this.state.selectedNoteId, title, content);
+            this.props.notes.updateNote(this.state.selectedNoteId, title, content);
             this.setState({
                 selectedNoteId: null
             });
         }
-    }
-    
-    createDummyNotes = () => {
-        let notes = [];
-
-        this.addNote('Title1', 'Content1');
-        this.addNote('Title2', 'Content2');
-        //this.addNote('Title3', 'Content3');
     }
 
     getEditorOpener(opener) {
@@ -122,11 +51,8 @@ class NotesComp extends React.Component {
             openEditor: opener
         });
     }
-
     
     componentDidMount() {
-        this.createDummyNotes();
-
         console.log(this.props);
     }
 
@@ -151,8 +77,8 @@ class NotesComp extends React.Component {
                         <Paper>
 
                             <NotesList 
-                                notes = {this.state.notes}
-                                deleteNote = {this.deleteNote}
+                                notes = {this.props.notes.findAll()}
+                                deleteNote = {this.props.notes.deleteNote}
                                 selectNote = {this.selectNote}
                             />
                             <Grid
@@ -191,4 +117,4 @@ class NotesComp extends React.Component {
     }
 }
 
-export let Notes = withAuth(NotesComp);
+export let Notes = withNotes(withAuth(NotesComp));

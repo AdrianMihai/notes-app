@@ -8,10 +8,11 @@ import Note from './Note';
 import './Note.css';
 
 export default class NotesList extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
+    componentDidMount() {
+        console.log(this.props);
+    }
+    
     render() {
         return (
             <React.Fragment>

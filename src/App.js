@@ -6,6 +6,7 @@ import { createMuiTheme } from '@material-ui/core/styles';
 import { indigo, deepOrange } from '@material-ui/core/colors';
 import { ThemeProvider } from '@material-ui/styles';
 import './App.css';
+import { NotesProvider } from './notes/NotesProvider';
 
 const theme = createMuiTheme({
 	palette: {
@@ -26,7 +27,9 @@ export class App extends React.Component {
 		return (
 			<ThemeProvider theme={theme}>
 				<AuthProvider>
-					<AppRouter />
+					<NotesProvider>
+						<AppRouter />
+					</NotesProvider>
 				</AuthProvider>
 			</ThemeProvider>
 		);
