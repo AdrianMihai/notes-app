@@ -4,12 +4,15 @@ import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import IconButton from '@material-ui/core/Fab';
 import Icon from '@material-ui/core/Icon';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import { green } from '@material-ui/core/colors';
 
-import withAuth from '../auth/Auth';
 import NotesList from './NotesList';
 import NoteEditor from './NoteEditor';
+import NotificationSnackbar from '../NotificationSnackbar';
+import withAuth from '../auth/Auth';
 import withNotes from './NotesProvider';
+import { Sidebar } from '../Sidebar';
 
 class NotesComp extends React.Component {
     constructor(props) {
@@ -17,12 +20,15 @@ class NotesComp extends React.Component {
 
         this.state = {
             openEditor: null,
+            openSnackbar: null,
             selectedNoteId: null
         };
 
         this.getEditorOpener = this.getEditorOpener.bind(this);
+        this.getSnackbarOpener = this.getSnackbarOpener.bind(this);
         this.saveNoteChange = this.saveNoteChange.bind(this);
         this.selectNote = this.selectNote.bind(this);
+        this.deleteNote = this.deleteNote.bind(this);
     }
 
     selectNote(id) {
@@ -34,15 +40,37 @@ class NotesComp extends React.Component {
         this.state.openEditor(false, note.title, note.content);
     }
 
-    saveNoteChange(title, content) {
+    async saveNoteChange(title, content) {
         if (this.state.selectedNoteId === null) {
-            this.props.notes.addNote(title, content);
+            try {
+                await this.props.notes.addNote(title, content);
+                this.state.openSnackbar('Note successfully created.', 'success');
+            }
+            catch(e) {
+                this.state.openSnackbar(e.getMessage(), 'error');
+            }
         }
         else {
-            this.props.notes.updateNote(this.state.selectedNoteId, title, content);
-            this.setState({
-                selectedNoteId: null
-            });
+            try {
+                await this.props.notes.updateNote(this.state.selectedNoteId, title, content);
+                this.state.openSnackbar('Note successfully updated.', 'success');
+                this.setState({
+                    selectedNoteId: null
+                });
+            }
+            catch(e) {
+                this.state.openSnackbar(e.getMessage(), 'error');
+            }
+        }
+    }
+
+    async deleteNote(id) {
+        try {
+            await this.props.notes.deleteNote(id);
+            this.state.openSnackbar('Note successfully deleted.', 'success');
+        }
+        catch(e) {
+            this.state.openSnackbar(e.getMessage(), 'error');
         }
     }
 
@@ -50,6 +78,29 @@ class NotesComp extends React.Component {
         this.setState({
             openEditor: opener
         });
+    }
+
+    getSnackbarOpener(opener) {
+        this.setState({
+            openSnackbar: opener
+        });
+    }
+
+    getLoader = () => {
+        if (this.props.notes.isLoading() === true) {
+            return (
+                <div className = "loader-container">
+                    <CircularProgress
+                        className = "circular-progress"
+                        variant = 'indeterminate'
+                        color = 'primary'
+                    />
+                </div>
+            );
+        }
+        else {
+            return null;
+        }
     }
     
     componentDidMount() {
@@ -60,6 +111,8 @@ class NotesComp extends React.Component {
         return (
             <React.Fragment>
 
+                <Sidebar />
+                
                 <Grid
                     container
                     className = "main-container"
@@ -71,14 +124,13 @@ class NotesComp extends React.Component {
                         xs = {12}
                         sm = {10}
                         md = {8}
-                        lg = {4}
-                        
+                        lg = {4} 
                     >
                         <Paper>
 
                             <NotesList 
                                 notes = {this.props.notes.findAll()}
-                                deleteNote = {this.props.notes.deleteNote}
+                                deleteNote = {this.deleteNote}
                                 selectNote = {this.selectNote}
                             />
                             <Grid
@@ -105,16 +157,26 @@ class NotesComp extends React.Component {
                             </Grid>
                             
                         </Paper>
+
+                        { this.getLoader() }
+                        
                     </Grid>
+
                 </Grid>
+
                 <NoteEditor 
                     shareOpener = {this.getEditorOpener}
                     saveNoteChange = {this.saveNoteChange}
                 />
+
+                <NotificationSnackbar
+                    shareOpener = {this.getSnackbarOpener}
+                />
+
             </React.Fragment>
             
         );
     }
-}
+};
 
 export let Notes = withNotes(withAuth(NotesComp));

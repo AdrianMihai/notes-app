@@ -74,17 +74,14 @@ export default class NoteEditor extends React.Component {
 
             <Dialog
                 keepMounted
+                fullWidth
+                maxWidth = 'sm'
                 className = 'note-editor'
                 open = {this.state.isOpen}
-                TransitionComponent={Transition}
+                TransitionComponent = {Transition}
                 onClose = {this.handleClose}
-                maxWidth = 'md'
             >
-                <DialogTitle
-                    style = {{
-                        minWidth: '500px'
-                    }}
-                >
+                <DialogTitle>
                     {
                         this.state.editMode === false
                         ? this.state.currentTitle

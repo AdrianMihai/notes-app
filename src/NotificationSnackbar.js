@@ -1,13 +1,11 @@
 import React from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
-import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 import Icon from '@material-ui/core/Icon';
-import { withTheme } from '@material-ui/core/styles';
-import green from '@material-ui/core/colors/green';
+import {green, red} from '@material-ui/core/colors';
 
-class NotificationsSnackbar extends React.Component{
+export default class NotificationSnackbar extends React.Component{
 	constructor(props) {
 		super(props);
 
@@ -24,7 +22,7 @@ class NotificationsSnackbar extends React.Component{
 			},
 			error: {
 				icon: "error_outline",
-				color: this.props.theme.palette.error.dark
+				color: red[700]
 			}
 		};
 
@@ -75,7 +73,7 @@ class NotificationsSnackbar extends React.Component{
 							}}
 						>
 							<Icon
-								style = {{marginRight: `${this.props.theme.spacing.unit}px`}}
+								style = {{marginRight: `8px`}}
 							>
 								{this.variantMappings[this.state.variant].icon}
 							</Icon>
@@ -85,18 +83,14 @@ class NotificationsSnackbar extends React.Component{
 			    	action = {[
 				        <IconButton
 				          key="close"
-				          aria-label="Close"
 				          color="inherit"
-				          className = ""
 				          onClick = {this.closeSnackbar}
 				        >
-			        		<CloseIcon className="" />
-			        	</IconButton>,
+							<Icon>close</Icon>
+			        	</IconButton>
 			    	]}
 			    />
 	        </Snackbar>
 		);
 	}
 }
-
-export default withTheme()(NotificationsSnackbar);

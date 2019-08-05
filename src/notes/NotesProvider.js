@@ -10,10 +10,9 @@ export class NotesProvider extends React.Component {
 
         this.firebaseApp = firebaseApp;
 
-        console.log(this.firebaseApp.database());
-
         this.state = {
-            notes: []
+            notes: [],
+            isLoading: false
         };
 
         this.count = this.count.bind(this);
@@ -24,6 +23,15 @@ export class NotesProvider extends React.Component {
         this.addNote = this.addNote.bind(this);
         this.updateNote = this.updateNote.bind(this);
         this.deleteNote = this.deleteNote.bind(this);
+    }
+    
+
+    getDatabase() {
+        return this.firebaseApp.database();
+    }
+
+    isLoading = () => {
+        return this.state.isLoading;
     }
 
     count() {
@@ -48,6 +56,35 @@ export class NotesProvider extends React.Component {
         return {id, title, content};
     }
 
+    async loadNotes() {
+        
+        this.setState({
+            isLoading: true
+        }, async () => {
+            let notes = [];
+
+            await this.getDatabase().ref('/notes').once('value')
+            .then((snapshot) => {
+                console.log(snapshot);
+                snapshot.forEach((childSnapshot) => {
+                    
+                    let key = childSnapshot.key,
+                        noteData = childSnapshot.val();
+                    
+                    notes.push(this.createNote(key, noteData.title, noteData.content));
+                });
+            });
+
+            this.setState({
+                notes: notes,
+                isLoading: false
+            });
+        });
+        
+
+        
+    }
+
     findAll() {
         return this.state.notes;
     }
@@ -66,48 +103,83 @@ export class NotesProvider extends React.Component {
         return this.getNote(this.findNoteIndex(id));
     }
 
-    addNote(title, content) {
+    async addNote(title, content) {
         
-        let id = this.generateUniqueId();
-        let notes = this.state.notes;
-        notes.push(this.createNote(id, title, content));
-
-        this.firebaseApp.database().ref('/notes').push({title, content});
-        
-
-        this.setState({notes});
-    }
-
-    updateNote(id, title, content) {
-        let index = this.findNoteIndex(id);
-
-        if (index > -1) {
-            let notes = this.state.notes;
-
-            let note = notes[index];
-            note.title = title;
-            note.content = content;
-
-            notes[index] = note;
+        this.setState({
+            isLoading: true
+        }, async () => {
+            let dbRef = this.getDatabase().ref('/notes');
+            let key = dbRef.push().key;
             
-            this.setState({notes});
-        }
+            await dbRef.child(key).set({title, content});
+
+            let notes = this.state.notes;
+            notes.push(this.createNote(key, title, content));
+
+            this.setState({
+                notes: notes,
+                isLoading: false
+            });
+                
+        });
+        
+        
     }
 
-    deleteNote(id) {
-        console.log(this.state);
-        let index = this.findNoteIndex(id);
+    async updateNote(id, title, content) {
+        this.setState({
+            isLoading: true
+        }, async () => {
+            let index = this.findNoteIndex(id);
 
-        if (index > -1) {
-            let notes = this.state.notes;
-            notes.splice(index, 1);
+            if (index > -1) {
+                let noteRef = this.getDatabase().ref(`/notes/${id}`);
 
-            this.setState({notes});
-        }
+                await noteRef.set({title, content});
+                let notes = this.state.notes;
+
+                let note = notes[index];
+                note.title = title;
+                note.content = content;
+
+                notes[index] = note;
+                
+                this.setState({
+                    notes: notes,
+                    isLoading: false
+                });
+            }
+        });
+        
+    }
+
+    async deleteNote(id) {
+
+        this.setState({
+            isLoading: true
+        }, async () => {
+            let index = this.findNoteIndex(id);
+
+            if (index > -1) {
+                let noteRef = this.getDatabase().ref(`/notes/${id}`);
+                await noteRef.remove();
+
+                let notes = this.state.notes;
+                notes.splice(index, 1);
+
+                this.setState({
+                    notes: notes,
+                    isLoading: false
+                });
+                
+            }
+        });
+        
     }
 
     getProvidedValue = () => {
         return {
+            isLoading: this.isLoading,
             count: this.count,
             findAll: this.findAll,
             getNote: this.getNote,
@@ -117,6 +189,10 @@ export class NotesProvider extends React.Component {
             updateNote: this.updateNote,
             deleteNote: this.deleteNote
         };
+    }
+
+    componentDidMount() {
+        this.loadNotes();
     }
 
     render() {
